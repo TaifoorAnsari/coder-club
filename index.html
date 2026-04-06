@@ -550,35 +550,15 @@
 
 <script>
   // =======================================
-  // 1. WEIRD SOUND (Web Audio API beep)
+  // 1. FAAH MEME SOUND
   // =======================================
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const faahSound = new Audio('https://www.myinstants.com/media/sounds/fahhhhh-3.mp3');
+  faahSound.preload = 'auto';
 
   function playWeirdSound() {
-    // Descending dissonant beep
-    const osc1 = audioCtx.createOscillator();
-    const osc2 = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc1.type = 'sawtooth';
-    osc1.frequency.setValueAtTime(900, audioCtx.currentTime);
-    osc1.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.5);
-
-    osc2.type = 'square';
-    osc2.frequency.setValueAtTime(660, audioCtx.currentTime);
-    osc2.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.5);
-
-    gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
-
-    osc1.connect(gain);
-    osc2.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    osc1.start();
-    osc2.start();
-    osc1.stop(audioCtx.currentTime + 0.6);
-    osc2.stop(audioCtx.currentTime + 0.6);
+    faahSound.currentTime = 0;
+    faahSound.play().catch(() => {});
   }
 
   // =======================================

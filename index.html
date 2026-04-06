@@ -53,27 +53,54 @@
       will-change: transform;
     }
 
-    /* ===== DRAG INDICATOR ===== */
-    #drag-hint {
+    /* ===== ROPE MAN ===== */
+    #rope-man-container {
       position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--neon-purple);
-      color: #fff;
-      padding: 8px 22px;
-      border-radius: 20px;
-      font-family: 'Press Start 2P', monospace;
-      font-size: 9px;
-      z-index: 9999;
-      text-shadow: 0 0 6px var(--neon-pink);
-      box-shadow: 0 0 18px var(--neon-purple);
-      animation: hintPulse 1.8s ease-in-out infinite;
-      pointer-events: none;
+      bottom: 20px;
+      right: 30px;
+      width: 120px;
+      height: 200px;
+      z-index: 9980;
     }
-    @keyframes hintPulse {
-      0%, 100% { opacity: .7; transform: translateX(-50%) scale(1); }
-      50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+    #rope-man-label {
+      position: fixed;
+      bottom: 4px;
+      right: 18px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--neon-blue);
+      text-shadow: 0 0 6px var(--neon-blue);
+      z-index: 9981;
+      pointer-events: none;
+      text-align: center;
+      width: 140px;
+      animation: labelPulse 2s ease-in-out infinite;
+    }
+    @keyframes labelPulse {
+      0%, 100% { opacity: .6; }
+      50% { opacity: 1; }
+    }
+    #rope-man-svg {
+      width: 120px;
+      height: 200px;
+      filter: drop-shadow(0 0 10px var(--neon-blue));
+    }
+    #rope-man-svg.pulling {
+      animation: manPull 0.5s ease-in-out;
+    }
+    @keyframes manPull {
+      0% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(10px) rotate(-8deg); }
+      50% { transform: translateY(-15px) rotate(5deg); }
+      75% { transform: translateY(5px) rotate(-3deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    #rope-man-svg .rope {
+      transition: stroke-dashoffset 0.4s;
+    }
+    /* Hit flash */
+    #rope-man-container.hit-flash #rope-man-svg {
+      filter: drop-shadow(0 0 25px var(--neon-yellow)) brightness(1.6);
     }
 
     /* ===== NAVBAR (intentionally misplaced) ===== */
@@ -283,13 +310,15 @@
     #hammer-label {
       position: fixed;
       bottom: 78px;
-      left: 16px;
+      left: 10px;
       font-family: 'Press Start 2P', monospace;
-      font-size: 7px;
+      font-size: 6px;
       color: var(--neon-yellow);
       text-shadow: 0 0 6px var(--neon-yellow);
       z-index: 9990;
       pointer-events: none;
+      width: 100px;
+      line-height: 1.6;
     }
 
     /* ===== HOVER ENLARGE ===== */
@@ -392,12 +421,40 @@
   <div id="scroll-alert-box">
     <h2>STOP RIGHT THERE!</h2>
     <p>We don't support mouse scroll. Don't like what you are doing with mouse!</p>
-    <button id="scroll-alert-close">Fine... I'll Drag</button>
+    <button id="scroll-alert-close">Fine... I'll Use The Hammer</button>
   </div>
 </div>
 
-<!-- ===== DRAG HINT ===== -->
-<div id="drag-hint">CLICK & DRAG TO SCROLL</div>
+<!-- ===== ROPE MAN (hit with hammer to scroll) ===== -->
+<div id="rope-man-container">
+  <svg id="rope-man-svg" viewBox="0 0 120 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- rope -->
+    <line class="rope" x1="60" y1="0" x2="60" y2="70" stroke="#a67c00" stroke-width="4" stroke-linecap="round" stroke-dasharray="8,4"/>
+    <line class="rope" x1="60" y1="0" x2="60" y2="10" stroke="#ffcc00" stroke-width="5" stroke-linecap="round"/>
+    <!-- head -->
+    <circle cx="60" cy="82" r="14" fill="#ffcc66" stroke="#cc9933" stroke-width="2"/>
+    <!-- eyes -->
+    <circle cx="54" cy="79" r="2.5" fill="#222"/>
+    <circle cx="66" cy="79" r="2.5" fill="#222"/>
+    <!-- mouth -->
+    <path d="M54,88 Q60,94 66,88" fill="none" stroke="#222" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- body -->
+    <line x1="60" y1="96" x2="60" y2="140" stroke="var(--neon-blue)" stroke-width="4" stroke-linecap="round"/>
+    <!-- arms (holding rope) -->
+    <line id="arm-left" x1="60" y1="108" x2="42" y2="75" stroke="var(--neon-blue)" stroke-width="3" stroke-linecap="round"/>
+    <line id="arm-right" x1="60" y1="112" x2="78" y2="75" stroke="var(--neon-blue)" stroke-width="3" stroke-linecap="round"/>
+    <!-- hands on rope -->
+    <circle cx="42" cy="75" r="4" fill="#ffcc66" stroke="#cc9933" stroke-width="1"/>
+    <circle cx="78" cy="75" r="4" fill="#ffcc66" stroke="#cc9933" stroke-width="1"/>
+    <!-- legs -->
+    <line x1="60" y1="140" x2="45" y2="175" stroke="var(--neon-blue)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="60" y1="140" x2="75" y2="175" stroke="var(--neon-blue)" stroke-width="3" stroke-linecap="round"/>
+    <!-- feet -->
+    <ellipse cx="42" cy="178" rx="8" ry="4" fill="#555" stroke="#333" stroke-width="1"/>
+    <ellipse cx="78" cy="178" rx="8" ry="4" fill="#555" stroke="#333" stroke-width="1"/>
+  </svg>
+</div>
+<div id="rope-man-label">HIT ME TO SCROLL</div>
 
 <!-- ===== NAVBAR (misplaced at bottom-right) ===== -->
 <nav id="navbar">
@@ -429,7 +486,7 @@
   <!-- shine -->
   <rect x="22" y="14" width="24" height="6" rx="2" fill="rgba(255,255,255,.35)"/>
 </svg>
-<div id="hammer-label">DRAG ME → DROP ON LIKE</div>
+<div id="hammer-label">DRAG ME → HIT MAN OR LIKE</div>
 
 <!-- ===== SCROLL WRAPPER ===== -->
 <div id="scroll-wrapper">
@@ -584,14 +641,15 @@
   scrollAlertClose.addEventListener('mousedown', function (e) { e.stopPropagation(); });
 
   // =======================================
-  // 3. PULL / DRAG TO SCROLL
+  // 3. ROPE MAN SCROLL SYSTEM
   // =======================================
   const scrollWrapper = document.getElementById('scroll-wrapper');
   const scrollContent = document.getElementById('scroll-content');
-  let isDragging = false;
-  let dragStartY = 0;
-  let scrollOffset = 0;
+  const ropeManContainer = document.getElementById('rope-man-container');
+  const ropeManSvg = document.getElementById('rope-man-svg');
   let currentOffset = 0;
+  const SCROLL_AMOUNT = 280; // pixels to scroll per hammer hit
+  let isScrolling = false;
 
   function clampOffset(offset) {
     const maxScroll = scrollContent.scrollHeight - scrollWrapper.clientHeight;
@@ -599,32 +657,35 @@
   }
 
   function applyScroll() {
+    scrollContent.style.transition = 'transform 0.6s cubic-bezier(.22,1,.36,1)';
     scrollContent.style.transform = `translateY(${currentOffset}px)`;
   }
 
-  scrollWrapper.addEventListener('mousedown', function (e) {
-    // Don't capture drag on hammer, alert, sidebar
-    if (e.target.closest('#hammer') || e.target.closest('#scroll-alert-overlay') || e.target.closest('#sidebar') || e.target.closest('#navbar')) return;
-    isDragging = true;
-    dragStartY = e.clientY;
-    scrollOffset = currentOffset;
-    scrollWrapper.style.cursor = 'grabbing';
-    e.preventDefault();
-  });
+  function triggerRopeManScroll() {
+    if (isScrolling) return;
+    isScrolling = true;
 
-  window.addEventListener('mousemove', function (e) {
-    if (!isDragging) return;
-    const delta = e.clientY - dragStartY;
-    currentOffset = clampOffset(scrollOffset + delta);
+    // Flash effect
+    ropeManContainer.classList.add('hit-flash');
+    setTimeout(() => ropeManContainer.classList.remove('hit-flash'), 300);
+
+    // Man pulling animation
+    ropeManSvg.classList.remove('pulling');
+    void ropeManSvg.offsetWidth; // force reflow
+    ropeManSvg.classList.add('pulling');
+
+    // Scroll the page down
+    currentOffset = clampOffset(currentOffset - SCROLL_AMOUNT);
     applyScroll();
-  });
 
-  window.addEventListener('mouseup', function () {
-    if (isDragging) {
-      isDragging = false;
-      scrollWrapper.style.cursor = '';
-    }
-  });
+    // Play smash sound
+    playSmashSound();
+
+    setTimeout(() => {
+      ropeManSvg.classList.remove('pulling');
+      isScrolling = false;
+    }, 600);
+  }
 
   // =======================================
   // 4. HAMMER DRAG & DROP → LIKE
@@ -663,10 +724,10 @@
     if (!hammerDragging) return;
     hammerDragging = false;
 
-    // Check collision with any like button
     const hammerRect = hammer.getBoundingClientRect();
     let hit = false;
 
+    // Check collision with LIKE buttons
     document.querySelectorAll('.like-btn').forEach(btn => {
       const btnRect = btn.getBoundingClientRect();
       if (
@@ -689,6 +750,18 @@
         playSmashSound();
       }
     });
+
+    // Check collision with ROPE MAN (scroll trigger)
+    const manRect = ropeManContainer.getBoundingClientRect();
+    if (
+      hammerRect.left < manRect.right &&
+      hammerRect.right > manRect.left &&
+      hammerRect.top < manRect.bottom &&
+      hammerRect.bottom > manRect.top
+    ) {
+      hit = true;
+      triggerRopeManScroll();
+    }
 
     // Reset hammer position
     hammer.style.transition = 'all 0.4s cubic-bezier(.22,1,.36,1)';

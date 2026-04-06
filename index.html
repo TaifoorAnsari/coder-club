@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The worst blog experience you will ever have. Enjoy the chaos." />
+  <title>Chaotic Blog — Good Luck Reading</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Courier+Prime&family=Dancing+Script&family=Press+Start+2P&family=Rubik+Glitch&family=Silkscreen&family=UnifrakturMaguntia&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== CUSTOM GIANT CURSOR ===== */
+    *, *::before, *::after {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><polygon points="0,0 0,50 14,38 24,58 32,54 22,34 40,34" fill="%2339ff14" stroke="%23ff00ff" stroke-width="2"/></svg>') 0 0, auto;
+    }
+
+    /* ===== GLOBAL RESET & NEON THEME ===== */
+    :root {
+      --neon-green: #39ff14;
+      --neon-pink: #ff6ec7;
+      --neon-blue: #04d9ff;
+      --neon-yellow: #fff01f;
+      --neon-orange: #ff6700;
+      --neon-purple: #bc13fe;
+      --neon-red: #ff073a;
+      --bg-dark: #0a0a0f;
+      --bg-card: #111119;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-dark);
+      color: var(--neon-green);
+      overflow: hidden; /* disable native scroll */
+      height: 100vh;
+      font-family: 'Courier Prime', monospace;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ===== SCROLL CONTAINER (pull-to-scroll target) ===== */
+    #scroll-wrapper {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      overflow: hidden;
+    }
+
+    #scroll-content {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: 20px 20px 200px 20px;
+      will-change: transform;
+    }
+
+    /* ===== DRAG INDICATOR ===== */
+    #drag-hint {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--neon-purple);
+      color: #fff;
+      padding: 8px 22px;
+      border-radius: 20px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      z-index: 9999;
+      text-shadow: 0 0 6px var(--neon-pink);
+      box-shadow: 0 0 18px var(--neon-purple);
+      animation: hintPulse 1.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes hintPulse {
+      0%, 100% { opacity: .7; transform: translateX(-50%) scale(1); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+    }
+
+    /* ===== NAVBAR (intentionally misplaced) ===== */
+    #navbar {
+      position: fixed;
+      bottom: 60px;
+      right: -18px;
+      transform: rotate(7deg);
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+      padding: 12px 30px;
+      display: flex;
+      gap: 22px;
+      border-radius: 14px 0 0 14px;
+      z-index: 900;
+      box-shadow: 0 0 30px var(--neon-pink), inset 0 0 12px rgba(0,0,0,.4);
+    }
+    #navbar a {
+      color: #fff;
+      text-decoration: none;
+      font-family: 'Creepster', cursive;
+      font-size: 20px;
+      text-shadow: 0 0 8px var(--neon-yellow);
+      transition: transform 0.1s;
+    }
+    #navbar a:hover {
+      transform: rotate(-12deg) scale(1.3);
+    }
+
+    /* ===== SIDEBAR (intentionally misplaced) ===== */
+    #sidebar {
+      position: fixed;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-4deg);
+      width: 190px;
+      background: rgba(17, 17, 25, 0.92);
+      border: 2px solid var(--neon-blue);
+      border-radius: 10px;
+      padding: 18px 14px;
+      z-index: 800;
+      box-shadow: 0 0 30px var(--neon-blue);
+      pointer-events: auto;
+    }
+    #sidebar h3 {
+      font-family: 'Rubik Glitch', cursive;
+      color: var(--neon-blue);
+      text-align: center;
+      font-size: 16px;
+      margin: 0 0 12px 0;
+      text-shadow: 0 0 10px var(--neon-blue);
+    }
+    #sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #sidebar ul li {
+      padding: 6px 0;
+      font-family: 'Dancing Script', cursive;
+      font-size: 15px;
+      color: var(--neon-yellow);
+      border-bottom: 1px dashed rgba(255,255,255,.1);
+      text-shadow: 0 0 5px var(--neon-yellow);
+    }
+    #sidebar ul li:last-child { border-bottom: none; }
+
+    /* ===== HEADER ===== */
+    .blog-header {
+      text-align: center;
+      padding: 60px 20px 30px;
+    }
+    .blog-header h1 {
+      font-family: 'Rubik Glitch', cursive;
+      font-size: 52px;
+      color: var(--neon-pink);
+      text-shadow: 0 0 20px var(--neon-pink), 0 0 60px var(--neon-pink);
+      transform: rotate(-2deg) scaleX(-1);
+      margin: 0;
+      letter-spacing: 4px;
+    }
+    .blog-header p {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 11px;
+      color: var(--neon-yellow);
+      margin-top: 8px;
+      transform: rotate(3deg);
+      text-shadow: 0 0 6px var(--neon-yellow);
+    }
+
+    /* ===== ARTICLE CARDS ===== */
+    .article-card {
+      background: var(--bg-card);
+      border: 1px solid var(--neon-green);
+      border-radius: 8px;
+      margin: 30px auto;
+      max-width: 720px;
+      padding: 28px 24px;
+      position: relative;
+      box-shadow: 0 0 20px rgba(57,255,20,.15);
+    }
+    .article-card:nth-child(even) {
+      border-color: var(--neon-pink);
+      box-shadow: 0 0 20px rgba(255,110,199,.15);
+      transform: rotate(1.2deg);
+    }
+    .article-card:nth-child(3n) {
+      transform: rotate(-1.5deg) translateX(30px);
+    }
+
+    .article-card .article-meta {
+      font-family: 'Silkscreen', monospace;
+      font-size: 9px;
+      color: var(--neon-orange);
+      text-shadow: 0 0 4px var(--neon-orange);
+      margin-bottom: 6px;
+      transform: scaleX(-1);
+      display: inline-block;
+    }
+
+    .article-card h2 {
+      font-family: 'Creepster', cursive;
+      font-size: 34px;
+      color: var(--neon-blue);
+      text-shadow: 0 0 12px var(--neon-blue);
+      margin: 0 0 10px;
+    }
+    .article-card h2.flipped {
+      transform: rotate(180deg);
+    }
+    .article-card h2.tilted {
+      transform: rotate(-8deg);
+    }
+
+    .article-card .article-body {
+      line-height: 1.9;
+      color: #ccc;
+    }
+
+    /* Random text styles via classes */
+    .txt-tiny { font-size: 9px; }
+    .txt-huge { font-size: 38px; }
+    .txt-medium { font-size: 16px; }
+    .txt-serif { font-family: 'UnifrakturMaguntia', serif; }
+    .txt-mono { font-family: 'Courier Prime', monospace; }
+    .txt-cursive { font-family: 'Dancing Script', cursive; }
+    .txt-pixel { font-family: 'Silkscreen', monospace; }
+    .txt-creepy { font-family: 'Creepster', cursive; }
+    .txt-glitch { font-family: 'Rubik Glitch', cursive; }
+    .txt-flip { display: inline-block; transform: scaleX(-1); }
+    .txt-upsidedown { display: inline-block; transform: rotate(180deg); }
+    .txt-tilt { display: inline-block; transform: rotate(12deg); }
+    .txt-neon-green { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); }
+    .txt-neon-pink { color: var(--neon-pink); text-shadow: 0 0 8px var(--neon-pink); }
+    .txt-neon-blue { color: var(--neon-blue); text-shadow: 0 0 8px var(--neon-blue); }
+    .txt-neon-yellow { color: var(--neon-yellow); text-shadow: 0 0 8px var(--neon-yellow); }
+    .txt-neon-red { color: var(--neon-red); text-shadow: 0 0 8px var(--neon-red); }
+    .txt-neon-purple { color: var(--neon-purple); text-shadow: 0 0 8px var(--neon-purple); }
+
+    /* ===== LIKE BUTTON ===== */
+    .like-btn-wrap {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .like-btn {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border: 2px solid var(--neon-red);
+      color: var(--neon-red);
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      pointer-events: none; /* cannot click directly */
+      text-shadow: 0 0 8px var(--neon-red);
+      box-shadow: 0 0 14px rgba(255,7,58,.3);
+      transition: background 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .like-btn.liked {
+      background: var(--neon-red);
+      color: #fff;
+      box-shadow: 0 0 30px var(--neon-red);
+    }
+    .like-count {
+      font-family: 'Silkscreen', monospace;
+      font-size: 12px;
+      color: var(--neon-yellow);
+    }
+
+    /* ===== DRAGGABLE HAMMER ===== */
+    #hammer {
+      position: fixed;
+      bottom: 100px;
+      left: 30px;
+      width: 70px;
+      height: 70px;
+      z-index: 9990;
+      cursor: grab;
+      filter: drop-shadow(0 0 12px var(--neon-yellow));
+      transition: filter 0.15s;
+      touch-action: none;
+    }
+    #hammer:active {
+      cursor: grabbing;
+    }
+    #hammer-label {
+      position: fixed;
+      bottom: 78px;
+      left: 16px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--neon-yellow);
+      text-shadow: 0 0 6px var(--neon-yellow);
+      z-index: 9990;
+      pointer-events: none;
+    }
+
+    /* ===== HOVER ENLARGE ===== */
+    .hoverable:hover {
+      font-size: 58px !important;
+      line-height: 1.1 !important;
+      transition: none !important;
+    }
+
+    /* ===== SCROLL ALERT OVERLAY ===== */
+    #scroll-alert-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      z-index: 99999;
+      justify-content: center;
+      align-items: center;
+    }
+    #scroll-alert-overlay.visible {
+      display: flex;
+    }
+    #scroll-alert-box {
+      background: linear-gradient(145deg, #1a002e, #0a0a18);
+      border: 3px solid var(--neon-pink);
+      border-radius: 14px;
+      padding: 36px 44px;
+      text-align: center;
+      box-shadow: 0 0 50px var(--neon-pink), 0 0 100px var(--neon-purple);
+      max-width: 460px;
+      animation: alertShake 0.4s ease-in-out;
+    }
+    @keyframes alertShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-14px) rotate(-2deg); }
+      40% { transform: translateX(14px) rotate(2deg); }
+      60% { transform: translateX(-8px) rotate(-1deg); }
+      80% { transform: translateX(8px) rotate(1deg); }
+    }
+    #scroll-alert-box h2 {
+      font-family: 'Rubik Glitch', cursive;
+      color: var(--neon-red);
+      font-size: 26px;
+      margin: 0 0 12px;
+      text-shadow: 0 0 14px var(--neon-red);
+    }
+    #scroll-alert-box p {
+      font-family: 'Courier Prime', monospace;
+      color: var(--neon-yellow);
+      font-size: 14px;
+      text-shadow: 0 0 6px var(--neon-yellow);
+    }
+    #scroll-alert-box button {
+      margin-top: 20px;
+      padding: 10px 28px;
+      background: var(--neon-pink);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 14px var(--neon-pink);
+    }
+
+    /* ===== NEON GLOW ANIMATION ON BODY BORDER ===== */
+    #scroll-wrapper::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      border: 3px solid var(--neon-green);
+      pointer-events: none;
+      z-index: 9000;
+      box-shadow: inset 0 0 30px rgba(57,255,20,.08);
+      animation: borderGlow 4s ease-in-out infinite alternate;
+    }
+    @keyframes borderGlow {
+      0% { border-color: var(--neon-green); box-shadow: inset 0 0 30px rgba(57,255,20,.08); }
+      33% { border-color: var(--neon-pink); box-shadow: inset 0 0 30px rgba(255,110,199,.08); }
+      66% { border-color: var(--neon-blue); box-shadow: inset 0 0 30px rgba(4,217,255,.08); }
+      100% { border-color: var(--neon-purple); box-shadow: inset 0 0 30px rgba(188,19,254,.08); }
+    }
+
+    /* ===== FOOTER ===== */
+    .blog-footer {
+      text-align: center;
+      padding: 60px 20px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 13px;
+      color: var(--neon-purple);
+      text-shadow: 0 0 8px var(--neon-purple);
+      transform: rotate(5deg);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== CUSTOM SCROLL ALERT ===== -->
+<div id="scroll-alert-overlay">
+  <div id="scroll-alert-box">
+    <h2>STOP RIGHT THERE!</h2>
+    <p>We don't support mouse scroll. Don't like what you are doing with mouse!</p>
+    <button id="scroll-alert-close">Fine... I'll Drag</button>
+  </div>
+</div>
+
+<!-- ===== DRAG HINT ===== -->
+<div id="drag-hint">CLICK & DRAG TO SCROLL</div>
+
+<!-- ===== NAVBAR (misplaced at bottom-right) ===== -->
+<nav id="navbar">
+  <a href="#">Home</a>
+  <a href="#">About</a>
+  <a href="#">Contact</a>
+  <a href="#">Subscribe</a>
+</nav>
+
+<!-- ===== SIDEBAR (overlapping center) ===== -->
+<aside id="sidebar">
+  <h3>Categories</h3>
+  <ul>
+    <li>Chaos Theory</li>
+    <li>Bad Design</li>
+    <li>Neon Dreams</li>
+    <li>Broken UX</li>
+    <li>Cursed CSS</li>
+  </ul>
+</aside>
+
+<!-- ===== HAMMER (draggable) ===== -->
+<svg id="hammer" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- handle -->
+  <rect x="44" y="40" width="12" height="55" rx="3" fill="#a67c00" stroke="#775500" stroke-width="2"/>
+  <!-- head -->
+  <rect x="18" y="10" width="64" height="32" rx="6" fill="#888" stroke="#555" stroke-width="2"/>
+  <rect x="18" y="10" width="32" height="32" rx="6" fill="#aaa" stroke="#555" stroke-width="2"/>
+  <!-- shine -->
+  <rect x="22" y="14" width="24" height="6" rx="2" fill="rgba(255,255,255,.35)"/>
+</svg>
+<div id="hammer-label">DRAG ME → DROP ON LIKE</div>
+
+<!-- ===== SCROLL WRAPPER ===== -->
+<div id="scroll-wrapper">
+  <div id="scroll-content">
+
+    <!-- HEADER -->
+    <header class="blog-header">
+      <h1 class="hoverable">The Chaotic Blog</h1>
+      <p class="hoverable">Where usability goes to die — established 2026</p>
+    </header>
+
+    <!-- ARTICLE 1 -->
+    <article class="article-card" id="article-1">
+      <span class="article-meta hoverable">April 6, 2026 &bull; 3 min read &bull; Nobody asked for this</span>
+      <h2 class="flipped hoverable">Why Good UX Is Overrated</h2>
+      <div class="article-body">
+        <span class="hoverable txt-cursive txt-huge txt-neon-pink">Have you ever</span>
+        <span class="hoverable txt-mono txt-tiny txt-neon-green"> wondered what would happen </span>
+        <span class="hoverable txt-serif txt-medium txt-neon-blue txt-flip">if designers just stopped caring?</span>
+        <span class="hoverable txt-pixel txt-tiny txt-neon-yellow"> Well, wonder no more. </span>
+        <span class="hoverable txt-creepy txt-medium txt-neon-red txt-tilt">This blog exists to prove</span>
+        <span class="hoverable txt-glitch txt-huge txt-neon-purple txt-upsidedown"> that chaos is beautiful.</span>
+        <span class="hoverable txt-mono txt-medium txt-neon-green"> We threw every design principle out of the window and replaced them with neon lights and confusion. </span>
+        <span class="hoverable txt-cursive txt-tiny txt-neon-pink txt-flip">You're welcome.</span>
+      </div>
+      <div class="like-btn-wrap">
+        <div class="like-btn" data-article="1" id="like-btn-1">♥ LIKE</div>
+        <span class="like-count" id="like-count-1">0 likes</span>
+      </div>
+    </article>
+
+    <!-- ARTICLE 2 -->
+    <article class="article-card" id="article-2">
+      <span class="article-meta hoverable">April 5, 2026 &bull; 7 min read &bull; You won't finish this</span>
+      <h2 class="tilted hoverable">The Art of Making Users Suffer</h2>
+      <div class="article-body">
+        <span class="hoverable txt-glitch txt-medium txt-neon-orange">Scrolling is a privilege,</span>
+        <span class="hoverable txt-serif txt-huge txt-neon-green txt-upsidedown"> not a right. </span>
+        <span class="hoverable txt-pixel txt-tiny txt-neon-blue">In this groundbreaking article, we explore </span>
+        <span class="hoverable txt-creepy txt-medium txt-neon-pink txt-tilt">the philosophical implications</span>
+        <span class="hoverable txt-mono txt-tiny txt-neon-yellow txt-flip"> of removing basic browser functionality. </span>
+        <span class="hoverable txt-cursive txt-huge txt-neon-purple">Some call it art.</span>
+        <span class="hoverable txt-glitch txt-tiny txt-neon-red"> Others call it a hate crime against users. </span>
+        <span class="hoverable txt-serif txt-medium txt-neon-green">We call it innovation.</span>
+      </div>
+      <div class="like-btn-wrap">
+        <div class="like-btn" data-article="2" id="like-btn-2">♥ LIKE</div>
+        <span class="like-count" id="like-count-2">0 likes</span>
+      </div>
+    </article>
+
+    <!-- ARTICLE 3 -->
+    <article class="article-card" id="article-3">
+      <span class="article-meta hoverable">April 4, 2026 &bull; 12 min read &bull; Definitely not worth it</span>
+      <h2 class="hoverable">Neon Is The New Minimalism</h2>
+      <div class="article-body">
+        <span class="hoverable txt-mono txt-huge txt-neon-pink txt-flip">Forget your whites</span>
+        <span class="hoverable txt-cursive txt-tiny txt-neon-blue"> and your gentle pastels. </span>
+        <span class="hoverable txt-creepy txt-medium txt-neon-yellow txt-upsidedown">The future is blindingly bright.</span>
+        <span class="hoverable txt-pixel txt-huge txt-neon-green txt-tilt"> Every pixel should scream </span>
+        <span class="hoverable txt-serif txt-tiny txt-neon-red">at you from across the room. </span>
+        <span class="hoverable txt-glitch txt-medium txt-neon-purple">If your eyes don't hurt,</span>
+        <span class="hoverable txt-mono txt-tiny txt-neon-orange txt-flip"> you are not trying hard enough. </span>
+        <span class="hoverable txt-creepy txt-huge txt-neon-blue">Welcome to the neon age.</span>
+      </div>
+      <div class="like-btn-wrap">
+        <div class="like-btn" data-article="3" id="like-btn-3">♥ LIKE</div>
+        <span class="like-count" id="like-count-3">0 likes</span>
+      </div>
+    </article>
+
+    <!-- ARTICLE 4 -->
+    <article class="article-card" id="article-4">
+      <span class="article-meta hoverable">April 3, 2026 &bull; 5 min read &bull; Why are you still here</span>
+      <h2 class="flipped hoverable">Cursors: The Bigger The Better</h2>
+      <div class="article-body">
+        <span class="hoverable txt-cursive txt-medium txt-neon-green">Small cursors are for cowards.</span>
+        <span class="hoverable txt-pixel txt-huge txt-neon-pink txt-tilt"> A real power user </span>
+        <span class="hoverable txt-serif txt-tiny txt-neon-blue txt-upsidedown">needs a cursor the size of a small country. </span>
+        <span class="hoverable txt-glitch txt-medium txt-neon-yellow">It should block entire paragraphs</span>
+        <span class="hoverable txt-mono txt-huge txt-neon-red txt-flip"> and make precision clicking impossible. </span>
+        <span class="hoverable txt-creepy txt-tiny txt-neon-purple">That is the dream. That is the goal.</span>
+        <span class="hoverable txt-cursive txt-medium txt-neon-orange"> And we have achieved it right here on this very page.</span>
+      </div>
+      <div class="like-btn-wrap">
+        <div class="like-btn" data-article="4" id="like-btn-4">♥ LIKE</div>
+        <span class="like-count" id="like-count-4">0 likes</span>
+      </div>
+    </article>
+
+    <!-- ARTICLE 5 -->
+    <article class="article-card" id="article-5">
+      <span class="article-meta hoverable">April 2, 2026 &bull; 9 min read &bull; Please leave</span>
+      <h2 class="tilted hoverable">Hammers And Like Buttons: A Love Story</h2>
+      <div class="article-body">
+        <span class="hoverable txt-glitch txt-huge txt-neon-blue txt-upsidedown">Why click</span>
+        <span class="hoverable txt-serif txt-tiny txt-neon-green"> when you can smash? </span>
+        <span class="hoverable txt-pixel txt-medium txt-neon-pink">Our revolutionary like system </span>
+        <span class="hoverable txt-creepy txt-huge txt-neon-yellow txt-flip">requires physical effort.</span>
+        <span class="hoverable txt-mono txt-tiny txt-neon-red txt-tilt"> Drag, aim, and drop the hammer. </span>
+        <span class="hoverable txt-cursive txt-medium txt-neon-purple">If you miss, no like for you.</span>
+        <span class="hoverable txt-glitch txt-tiny txt-neon-orange"> It is the most rewarding social interaction on the internet. </span>
+        <span class="hoverable txt-serif txt-huge txt-neon-green txt-upsidedown">You will feel things.</span>
+      </div>
+      <div class="like-btn-wrap">
+        <div class="like-btn" data-article="5" id="like-btn-5">♥ LIKE</div>
+        <span class="like-count" id="like-count-5">0 likes</span>
+      </div>
+    </article>
+
+    <!-- FOOTER -->
+    <footer class="blog-footer hoverable">
+      &copy; 2026 Chaotic Blog Inc. — No rights reserved. We don't even know what we're doing.
+    </footer>
+
+  </div>
+</div>
+
+<script>
+  // =======================================
+  // 1. WEIRD SOUND (Web Audio API beep)
+  // =======================================
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playWeirdSound() {
+    // Descending dissonant beep
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc1.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(900, audioCtx.currentTime);
+    osc1.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.5);
+
+    osc2.type = 'square';
+    osc2.frequency.setValueAtTime(660, audioCtx.currentTime);
+    osc2.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.5);
+
+    gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc1.start();
+    osc2.start();
+    osc1.stop(audioCtx.currentTime + 0.6);
+    osc2.stop(audioCtx.currentTime + 0.6);
+  }
+
+  // =======================================
+  // 2. DISABLE MOUSE SCROLL + SHOW ALERT
+  // =======================================
+  const scrollAlertOverlay = document.getElementById('scroll-alert-overlay');
+  const scrollAlertClose = document.getElementById('scroll-alert-close');
+  let alertCooldown = false;
+
+  window.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    if (!alertCooldown) {
+      alertCooldown = true;
+      scrollAlertOverlay.classList.add('visible');
+      playWeirdSound();
+      setTimeout(() => { alertCooldown = false; }, 2000);
+    }
+  }, { passive: false });
+
+  scrollAlertClose.addEventListener('click', function () {
+    scrollAlertOverlay.classList.remove('visible');
+  });
+  scrollAlertClose.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+
+  // =======================================
+  // 3. PULL / DRAG TO SCROLL
+  // =======================================
+  const scrollWrapper = document.getElementById('scroll-wrapper');
+  const scrollContent = document.getElementById('scroll-content');
+  let isDragging = false;
+  let dragStartY = 0;
+  let scrollOffset = 0;
+  let currentOffset = 0;
+
+  function clampOffset(offset) {
+    const maxScroll = scrollContent.scrollHeight - scrollWrapper.clientHeight;
+    return Math.max(-maxScroll, Math.min(0, offset));
+  }
+
+  function applyScroll() {
+    scrollContent.style.transform = `translateY(${currentOffset}px)`;
+  }
+
+  scrollWrapper.addEventListener('mousedown', function (e) {
+    // Don't capture drag on hammer, alert, sidebar
+    if (e.target.closest('#hammer') || e.target.closest('#scroll-alert-overlay') || e.target.closest('#sidebar') || e.target.closest('#navbar')) return;
+    isDragging = true;
+    dragStartY = e.clientY;
+    scrollOffset = currentOffset;
+    scrollWrapper.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', function (e) {
+    if (!isDragging) return;
+    const delta = e.clientY - dragStartY;
+    currentOffset = clampOffset(scrollOffset + delta);
+    applyScroll();
+  });
+
+  window.addEventListener('mouseup', function () {
+    if (isDragging) {
+      isDragging = false;
+      scrollWrapper.style.cursor = '';
+    }
+  });
+
+  // =======================================
+  // 4. HAMMER DRAG & DROP → LIKE
+  // =======================================
+  const hammer = document.getElementById('hammer');
+  const hammerLabel = document.getElementById('hammer-label');
+  let hammerDragging = false;
+  let hammerOffsetX = 0, hammerOffsetY = 0;
+  let hammerOrigLeft, hammerOrigBottom;
+  const likes = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+  // Store original position
+  hammerOrigLeft = hammer.style.left || '30px';
+  hammerOrigBottom = hammer.style.bottom || '100px';
+
+  hammer.addEventListener('mousedown', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    hammerDragging = true;
+    const rect = hammer.getBoundingClientRect();
+    hammerOffsetX = e.clientX - rect.left;
+    hammerOffsetY = e.clientY - rect.top;
+    hammer.style.position = 'fixed';
+    hammer.style.transition = 'none';
+    hammer.style.zIndex = '99998';
+  });
+
+  window.addEventListener('mousemove', function (e) {
+    if (!hammerDragging) return;
+    hammer.style.left = (e.clientX - hammerOffsetX) + 'px';
+    hammer.style.top = (e.clientY - hammerOffsetY) + 'px';
+    hammer.style.bottom = 'auto';
+  });
+
+  window.addEventListener('mouseup', function (e) {
+    if (!hammerDragging) return;
+    hammerDragging = false;
+
+    // Check collision with any like button
+    const hammerRect = hammer.getBoundingClientRect();
+    let hit = false;
+
+    document.querySelectorAll('.like-btn').forEach(btn => {
+      const btnRect = btn.getBoundingClientRect();
+      if (
+        hammerRect.left < btnRect.right &&
+        hammerRect.right > btnRect.left &&
+        hammerRect.top < btnRect.bottom &&
+        hammerRect.bottom > btnRect.top
+      ) {
+        hit = true;
+        const id = btn.dataset.article;
+        likes[id]++;
+        btn.classList.add('liked');
+        document.getElementById('like-count-' + id).textContent = likes[id] + ' likes';
+
+        // Smash animation
+        btn.style.transform = 'scale(1.3)';
+        setTimeout(() => { btn.style.transform = ''; }, 200);
+
+        // Play a smash sound
+        playSmashSound();
+      }
+    });
+
+    // Reset hammer position
+    hammer.style.transition = 'all 0.4s cubic-bezier(.22,1,.36,1)';
+    hammer.style.left = hammerOrigLeft;
+    hammer.style.bottom = hammerOrigBottom;
+    hammer.style.top = 'auto';
+    hammer.style.zIndex = '9990';
+  });
+
+  function playSmashSound() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.35);
+  }
+
+  // =======================================
+  // 5. PREVENT KEYBOARD SCROLL TOO
+  // =======================================
+  window.addEventListener('keydown', function (e) {
+    const scrollKeys = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '];
+    if (scrollKeys.includes(e.key)) {
+      e.preventDefault();
+    }
+  });
+</script>
+</body>
+</html>
